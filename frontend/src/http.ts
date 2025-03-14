@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3000";
@@ -52,7 +53,7 @@ export const $delete = async (url: string, params = {}) => {
 
 export const $post = async (
   url: string,
-  data: { username: string; password: string }
+  data: any
 ) => {
   try {
     const response = await axiosInstance.post(url, data);
@@ -62,7 +63,6 @@ export const $post = async (
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const $put = async (url: string, data: any) => {
   try {
     const response = await axiosInstance.put(url, data);
