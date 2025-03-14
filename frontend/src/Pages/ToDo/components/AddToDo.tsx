@@ -5,7 +5,7 @@ import { setIsLoading, setShowAddToDo } from "../store/slice";
 import { styled } from "styled-components";
 import dayjs from "dayjs";
 import { addToDo, getToDoList } from "../store/action";
-import { TToDo } from "../store/types";
+import { STATUS, TToDo } from "../store/types";
 import { useSelector } from "react-redux";
 import { selectIsLoading } from "../store/selector";
 
@@ -19,6 +19,7 @@ const AddToDo = () => {
     const formattedValues = {
       ...values,
       dueDate: values.dueDate && dayjs(values.dueDate).format("YYYY-MM-DD"),
+      completed: values.completed ?? STATUS.INCOMPLETE
     };
     
     dispatch(setIsLoading(true));
