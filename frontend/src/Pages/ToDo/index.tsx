@@ -1,17 +1,29 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import { Table, Input, Button, DatePicker, Select } from "antd";
+import { Table, Input, Button, DatePicker, Select, Popconfirm } from "antd";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { useAppDispatch } from "../../store";
-import { selectError, selectIsLoading, selectToDoList } from "./store/selector";
-import { getToDoList } from "./store/action";
+import {
+  selectError,
+  selectIsLoading,
+  selectShowAddToDo,
+  selectToDoList,
+} from "./store/selector";
+import { deleteToDo, getToDoList, updateToDo } from "./store/action";
 import moment from "moment";
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
+  DeleteTwoTone,
   EditTwoTone,
+  PlusCircleTwoTone,
 } from "@ant-design/icons";
+import AddToDo from "./components/AddToDo";
+import { setIsLoading, setShowAddToDo } from "./store/slice";
+import { STATUS, TToDo } from "./store/types";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -19,49 +31,50 @@ const ToDoList = () => {
   const dispatch = useAppDispatch();
   const todos = useSelector(selectToDoList);
   const isLoading = useSelector(selectIsLoading);
+  const showAddToDo = useSelector(selectShowAddToDo);
   const error = useSelector(selectError);
 
+  // Local state for editing
   const [editingRow, setEditingRow] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState<{ [key: string]: string }>({});
-  const [editDate, setEditDate] = useState<{ [key: string]: string }>({});
-  const [editCompleted, setEditCompleted] = useState<{ [key: string]: number }>({});
+  const [editValues, setEditValues] = useState<{
+    todo: string;
+    dueDate: any;
+    completed: number;
+  }>({
+    todo: "",
+    dueDate: null,
+    completed: 0,
+  });
 
   useEffect(() => {
     dispatch(getToDoList());
   }, [dispatch]);
 
-  const handleEditClick = (
-    id: string,
-    currentTodo: string,
-    currentDate: string,
-    currentCompleted: number
-  ) => {
-    setEditingRow(id);
-    setEditValue({ ...editValue, [id]: currentTodo });
-    setEditDate({ ...editDate, [id]: currentDate });
-    setEditCompleted({ ...editCompleted, [id]: currentCompleted });
+  const handleEditClick = (record: TToDo) => {
+    setEditingRow(record.id);
+    setEditValues({
+      todo: record.todo,
+      dueDate: record.dueDate ? dayjs(record.dueDate, "YYYY-MM-DD") : null,
+      completed: record.completed,
+    });
   };
 
-  const handleSaveClick = (id: string) => {
-    console.log("Saving:", id, editValue[id], editDate[id], editCompleted[id]);
+  const handleSaveClick = async (id: string) => {
+    const updatedData = {
+      id: String(id),
+      data: {
+        todo: editValues.todo,
+        dueDate: editValues.dueDate
+          ? moment(editValues.dueDate).format("YYYY-MM-DD")
+          : undefined,
+        completed: editValues.completed ?? STATUS.INCOMPLETE,
+      },
+    };
+
+    dispatch(setIsLoading(true));
+    await dispatch(updateToDo(updatedData));
     setEditingRow(null);
-  };
-
-  const handleChange = (id: string, value: string) => {
-    setEditValue({ ...editValue, [id]: value });
-  };
-
-  const handleDateChange = (
-    id: string,
-    date: any,
-    dateString: string | string[]
-  ) => {
-    if (Array.isArray(dateString)) return;
-    setEditDate({ ...editDate, [id]: dateString });
-  };
-
-  const handleCompletedChange = (id: string, value: number) => {
-    setEditCompleted({ ...editCompleted, [id]: value });
+    dispatch(getToDoList());
   };
 
   const handleCancelClick = () => {
@@ -78,11 +91,16 @@ const ToDoList = () => {
       title: "Todo",
       dataIndex: "todo",
       key: "todo",
-      render: (text: string, record: any) =>
+      render: (text: string, record: TToDo) =>
         editingRow === record.id ? (
           <Input
-            value={editValue[record.id] || ""}
-            onChange={(e) => handleChange(record.id, e.target.value)}
+            value={editValues.todo}
+            onChange={(e) =>
+              setEditValues((prev) => ({
+                ...prev,
+                todo: e.target.value,
+              }))
+            }
           />
         ) : (
           text
@@ -92,14 +110,19 @@ const ToDoList = () => {
       title: "Due Date",
       dataIndex: "dueDate",
       key: "dueDate",
-      render: (text: string, record: any) =>
+      render: (text: string, record: TToDo) =>
         editingRow === record.id ? (
           <DatePicker
             value={
-              editDate[record.id] ? moment(editDate[record.id]) : moment(text)
+              editValues.dueDate
+                ? dayjs(editValues.dueDate, "YYYY-MM-DD")
+                : null
             }
-            onChange={(date, dateString) =>
-              handleDateChange(record.id, date, dateString)
+            onChange={(date) =>
+              setEditValues((prev) => ({
+                ...prev,
+                dueDate: date ? date.format("YYYY-MM-DD") : "",
+              }))
             }
           />
         ) : (
@@ -110,11 +133,13 @@ const ToDoList = () => {
       title: "Is Completed",
       dataIndex: "completed",
       key: "completed",
-      render: (completed: number, record: any) =>
+      render: (completed: number, record: TToDo) =>
         editingRow === record.id ? (
           <Select
-            value={editCompleted[record.id] ?? completed}
-            onChange={(value) => handleCompletedChange(record.id, value)}
+            value={editValues.completed}
+            onChange={(value) =>
+              setEditValues((prev) => ({ ...prev, completed: value }))
+            }
             style={{ width: 120 }}
           >
             <Option value={0}>No</Option>
@@ -129,33 +154,81 @@ const ToDoList = () => {
     {
       title: "Action",
       key: "action",
-      render: (_: any, record: any) =>
+      render: (_: any, record: TToDo) =>
         editingRow === record.id ? (
           <>
-            <CloseCircleTwoTone
-              style={{ fontSize: 25 }}
-              onClick={handleCancelClick}
+            <Button
+              loading={isLoading}
+              style={{ border: "none" }}
+              color="green"
+              icon={
+                <CheckCircleTwoTone
+                  style={{ fontSize: 25 }}
+                  twoToneColor="#03b500"
+                />
+              }
+              onClick={async () => {
+                handleSaveClick(record.id);
+              }}
             />
-            <CheckCircleTwoTone
-              style={{ fontSize: 25, marginLeft: "1rem" }}
-              onClick={() => handleSaveClick(record.id)}
+            <Button
+              danger
+              style={{ marginLeft: "1rem", border: "none" }}
+              icon={
+                <CloseCircleTwoTone
+                  style={{ fontSize: 25 }}
+                  twoToneColor="#e3130b"
+                />
+              }
+              onClick={handleCancelClick}
             />
           </>
         ) : (
-          <Button
-            icon={<EditTwoTone style={{ fontSize: 25 }} />}
-            onClick={() =>
-              handleEditClick(record.id, record.todo, record.dueDate, record.completed)
-            }
-          />
+          <>
+            <Button
+              style={{ border: "none" }}
+              icon={<EditTwoTone style={{ fontSize: 25 }} />}
+              onClick={() => handleEditClick(record)}
+            />
+            <Popconfirm
+              title="Delete the task"
+              description="Are you sure to delete this ToDo?"
+              onConfirm={async () => {
+                dispatch(setIsLoading(true));
+                await dispatch(deleteToDo({ id: record.id }));
+                dispatch(getToDoList());
+              }}
+            >
+              <Button
+                danger
+                style={{ marginLeft: "1rem", border: "none" }}
+                icon={
+                  <DeleteTwoTone
+                    style={{ fontSize: 20 }}
+                    twoToneColor="#e3130b"
+                  />
+                }
+              />
+            </Popconfirm>
+          </>
         ),
     },
   ];
 
   return (
     <PageWrapper>
-      <HeaderText>Here is your ToDo list:</HeaderText>
+      <HeaderContainer>
+        <HeaderText>Here is your ToDo list:</HeaderText>
+        <Button
+          type="primary"
+          icon={<PlusCircleTwoTone style={{ fontSize: 16 }} />}
+          onClick={() => dispatch(setShowAddToDo(true))}
+        >
+          Add New
+        </Button>
+      </HeaderContainer>
       {error && <ErrorText>{error}</ErrorText>}
+      {showAddToDo && <AddToDo />}
       <Table
         dataSource={todos}
         columns={columns}
@@ -176,6 +249,13 @@ const PageWrapper = styled.div`
   @media (max-width: 768px) {
     padding: 1rem;
   }
+`;
+
+const HeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 `;
 
 const HeaderText = styled.p`

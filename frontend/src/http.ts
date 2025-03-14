@@ -41,6 +41,15 @@ export const $get = async (url: string, params = {}) => {
   }
 };
 
+export const $delete = async (url: string, params = {}) => {
+  try {
+    const response = await axiosInstance.delete(url, { params });
+    return response.data;
+  } catch (error) {
+    handleRequestError(error);
+  }
+};
+
 export const $post = async (
   url: string,
   data: { username: string; password: string }

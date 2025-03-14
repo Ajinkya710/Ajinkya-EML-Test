@@ -4,21 +4,17 @@ import {
   IsOptional,
   IsEnum,
 } from 'class-validator';
-import { STATUS } from './todo.entity'; // Importing the enum
+import { STATUS } from './todo.entity';
 
 export class CreateTodoDto {
   @IsNotEmpty()
   @IsString()
   todo: string;
 
-  @IsEnum(STATUS) // Ensures only 0 or 1 values
+  @IsEnum(STATUS)
   completed: STATUS;
 
-  @IsNotEmpty()
-  @IsString()
-  userId: string;
-
-  @IsOptional() // Optional dueDate, but should be a valid date string
+  @IsOptional()
   @IsString()
   dueDate?: string;
 }
@@ -29,12 +25,8 @@ export class UpdateTodoDto {
   todo?: string;
 
   @IsOptional()
-  @IsEnum(STATUS) // Ensures only 0 or 1 values for completed
+  @IsEnum(STATUS)
   completed?: STATUS;
-
-  @IsOptional()
-  @IsString()
-  userId?: string;
 
   @IsOptional()
   @IsString()
