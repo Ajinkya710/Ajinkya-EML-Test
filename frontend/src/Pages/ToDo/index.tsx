@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Table, Input, Button, DatePicker, Select, Popconfirm } from "antd";
 import { useSelector } from "react-redux";
@@ -38,6 +36,7 @@ const ToDoList = () => {
   const [editingRow, setEditingRow] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{
     todo: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dueDate: any;
     completed: number;
   }>({
@@ -85,7 +84,7 @@ const ToDoList = () => {
     {
       title: "No",
       key: "no",
-      render: (_: any, __: any, index: number) => `${index + 1}`,
+      render: (_: string, __: TToDo, index: number) => `${index + 1}`,
     },
     {
       title: "Todo",
@@ -154,7 +153,7 @@ const ToDoList = () => {
     {
       title: "Action",
       key: "action",
-      render: (_: any, record: TToDo) =>
+      render: (_: string, record: TToDo) =>
         editingRow === record.id ? (
           <>
             <Button

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, DatePicker, Form, Input, Select } from "antd";
 import { useAppDispatch } from "../../../store";
 import { setIsLoading, setShowAddToDo } from "../store/slice";
