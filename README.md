@@ -1,19 +1,27 @@
-### Nimbly Code Challenge
-
-The production version of the app can be found here: [Nimbly App](https://nimbly-app.vercel.app/)
-
+### EML Coding Challenge
     Steps to run code locally:
 
-    git clone https://github.com/Ajinkya710/nimbly-app
+    git clone https://github.com/Ajinkya710/Ajinkya-EML-Test
 
-    cd nimbly-app
+    Backend:
+    cd Ajinkya-EML-Test/backend
     npm install
+    npm run start:dev
+    This will start the nestjs backend server on http://localhost:3000.
 
-    This will start the frontend on http://localhost:3000.
+    FrontEnd:
+    cd Ajinkya-EML-Test/frontend
+    npm install
+    npm run dev
+    This will start the nestjs backend server on http://localhost:5173.
+
+    NOTE: Please use following details to login (User is hardcoded with bcrypt hash value)
+    username: ajinkya-test
+    password: ajinkya-test-password
 
 ### Code Structure
-
-The code uses Redux for state management, styled-components for styling, antd - table and axios for api communication
+FrontEnd:
+The code uses Redux for state management, styled-components for styling, antd for components and axios for api communication
 
     store - Manages all the state data for a particular page
         
@@ -36,3 +44,13 @@ The code uses Redux for state management, styled-components for styling, antd - 
         - Layout: Common Layout component for pages
 
         - Spinner: Reusable loading spinner component
+
+Backend:
+The code uses NestJS, Data used is JavaScript Objects.
+
+    modules - Manages controllers, service, dto, entities and module for each functionality
+
+        - /toDo - crud operation end points related to ToDO
+
+        - /user - login end point for hardcoded user. Return a token on successful login
+    
