@@ -53,4 +53,12 @@ The code uses NestJS, Data used is JavaScript Objects.
         - /toDo - crud operation end points related to ToDO
 
         - /user - login end point for hardcoded user. Return a token on successful login
-    
+
+EndPoints:
+
+    User - /login - checks username and password and returns a token
+
+    ToDo - /todos - GET: returns all todos in the object
+           /todos - POST: Adds a new todo and returns back the new todo
+           /todos/${id} - PUT: Updates an existing todo based on id
+           /todos/${id} - DELETE: Deletes an existing todo

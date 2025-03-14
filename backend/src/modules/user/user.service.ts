@@ -19,7 +19,6 @@ export class UserService {
 
   async validateUser(loginDto: LoginDto) {
     const { username, password } = loginDto;
-    console.log(username, password);
 
     if (username !== this.hardcodedUser.username) {
       throw new UnauthorizedException('Invalid credentials');
