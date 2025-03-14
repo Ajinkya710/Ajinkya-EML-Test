@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Spinner";
 import { useAppDispatch } from "../../store";
+import { jwtDecode } from "jwt-decode";
 
 const PrivatePage: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
@@ -18,11 +19,14 @@ const PrivatePage: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       }
 
       try {
-        // const result = await dispatch(verifyToken());
+        const decodedToken: { exp: number } = jwtDecode(token);
+        const currentTime = Math.floor(Date.now() / 1000);
 
-        // if (!result?.payload) {
-        //   navigate("/login", { replace: true });
-        // }
+        if (decodedToken.exp < currentTime) {
+          console.warn("Token expired, redirecting to login...");
+          localStorage.removeItem("authToken");
+          return navigate("/login", { replace: true });
+        }
       } catch (error) {
         console.error("Token verification failed:", error);
         navigate("/login", { replace: true });

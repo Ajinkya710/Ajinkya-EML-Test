@@ -44,7 +44,7 @@ export class UserService {
       userId: this.hardcodedUser.id,
       email: this.hardcodedUser.email,
       firstName: this.hardcodedUser.firstName,
-      access_token: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload),
     };
   }
 }
