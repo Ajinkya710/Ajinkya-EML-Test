@@ -38,7 +38,7 @@ const AddToDo = () => {
     >
       <AddToDoWrapper>
         <Form.Item
-          label="Description"
+          label="Todo"
           name="todo"
           rules={[{ required: true, message: "Please input description." }]}
           style={{ width: "50%" }}
