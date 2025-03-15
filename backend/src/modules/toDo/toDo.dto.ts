@@ -14,7 +14,6 @@ export class CreateTodoDto {
   @IsEnum(STATUS)
   completed: STATUS;
 
-  @IsOptional()
   @IsString()
   dueDate?: string;
 }
